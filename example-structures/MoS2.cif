@@ -1,0 +1,17 @@
+data_0
+loop_
+  _atom_site_label
+  _atom_site_fract_x
+  _atom_site_fract_y
+  _atom_site_fract_z
+  _atom_site_type_symbol
+   Mo1  0.333333333339  0.666666666679  0.499999999998  Mo
+   S1  0.666666666661  0.333333333321  0.432676886452  S
+   S2  0.666666666661  0.333333333321  0.567323113548  S
+ 
+_cell_angle_alpha                       90.0
+_cell_angle_beta                        90.0
+_cell_angle_gamma                       120.0
+_cell_length_a                          3.1882186144
+_cell_length_b                          3.18821861441
+_cell_length_c                          23.1547020881
