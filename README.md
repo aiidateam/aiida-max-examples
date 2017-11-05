@@ -8,5 +8,7 @@ Usage
 -----
 
 ```
+workon aiida
+verdi daemon start
 ./run.py -c siesta-4.0.1@localhost -s TiO2
 ```
