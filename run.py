@@ -143,7 +143,7 @@ def execute(args):
     elif 'fleur' in input_plugin:
         from fleur import workchain, kwargs
 
-    results = run(
+    result = run(
         # general inputs
         workchain,
         code=code,
