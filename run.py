@@ -20,13 +20,16 @@ def load_example_structures():
     
     if created:
         import glob
+        import os
         from ase.io import read
         from aiida.orm.data.structure import StructureData
 
-        filenames = glob.glob(group_name + '/*.cif')
+        paths = glob.glob(group_name + '/*.cif')
 
-        for name in ['TiO2']:
-            structure = StructureData(ase=read(name + '.cif'))
+        for path in paths:
+            fname = os.path.basename(path)
+            name = os.path.splitext(fname)[0]
+            structure = StructureData(ase=read(path))
             structure.label = name
             print("Storing {} in database".format(name))
             structure.store()
