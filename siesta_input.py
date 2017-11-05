@@ -1,9 +1,11 @@
 #!/usr/bin/env runaiida
 # -*- coding: utf-8 -*-
-from aiida.orm import Code, DataFactory, CalculationFactory
+from aiida.orm import Code, DataFactory
 from aiida_siesta.workflows.base import SiestaBaseWorkChain as workchain
 import aiida_siesta.data.psf as psf
+from aiida.orm.data.base import Int, Str
 
+ParameterData = DataFactory('parameter')
 PsfData = DataFactory('siesta.psf')
 
 block_pao_basis_content = """
@@ -35,7 +37,7 @@ n=3    2    1   E     21.69      0.93
 1.00000000000000
 """
 
-parameters = {
+parameters = ParameterData(dict= {
     'xc-functional': 'GGA',
     'xc-authors': 'PBE',
     'spin-polarized': False,
@@ -54,18 +56,20 @@ parameters = {
     'writeforces': True,
     'writecoorstep': True,
     'xml:write': True,
-}
+})
+
+settings = ParameterData(dict= {})
 
 # default basis
-basis = {
+basis = ParameterData(dict={
     # 'pao-energy-shift': '100 meV',
     # '%block pao-basis-sizes': """
     # Si DZP                    """,
     '%block pao-basis': block_pao_basis_content,
-}
+})
 
-settings = {}
 
+max_iterations=Int(5)
 
 
 # upload pseudos
@@ -75,6 +79,12 @@ pseudo_family_desc = "Siesta Pseudopotentials for example structures"
 
 files_found, files_uploaded = psf.upload_psf_family(
     folder, pseudo_family, pseudo_family_desc, stop_if_existing=False)
+pseudo_family = Str('example-siesta-pps')
 
 print("PSF files found: {}. New files uploaded: {}").format(
     files_found, files_uploaded)
+
+# kwargs
+kwargs = {}
+for name in ('pseudo_family', 'parameters', 'settings', 'basis'):
+    kwargs[name] = locals()[name]

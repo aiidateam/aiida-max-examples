@@ -124,13 +124,13 @@ def execute(args):
     ])
 
     # options
-    options  = {
+    options  = ParameterData(dict={
         'resources': {
             'num_machines': 1,
             "num_mpiprocs_per_machine": 1,
         },
         'max_wallclock_seconds': args.max_wallclock_seconds,
-    }
+    })
 
     # Get aiida code
     code = Code.get_from_string(args.codename)
@@ -139,9 +139,9 @@ def execute(args):
     # Determine aiida plugin
     input_plugin = code.get_input_plugin_name()
     if 'siesta' in input_plugin:
-        from siesta_input import workchain, pseudo_family, parameters, settings, basis
+        from siesta_input import workchain, kwargs
     elif 'fleur' in input_plugin:
-        from fleur import workchain, pseudo_family, parameters, settings, basis
+        from fleur import workchain, kwargs
 
     results = run(
         # general inputs
@@ -150,13 +150,9 @@ def execute(args):
         structure=structure,
         kpoints=kpoints,
         bandskpoints=bandskpoints,
+        options=options,
         # plugin-specific inputs
-        pseudo_family=Str(pseudo_family),
-        parameters=ParameterData(dict=parameters),
-        settings=ParameterData(dict=settings),
-        options=ParameterData(dict=options),
-        basis=ParameterData(dict=basis),
-        #max_iterations=Int(args.max_iterations),
+        **kwargs
     )
 
     return result
