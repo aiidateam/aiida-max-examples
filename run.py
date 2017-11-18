@@ -31,6 +31,9 @@ def load_example_structures():
 
             cif = CifData()
             structure = c.read_cif(path)
+            if "ML" in name:
+                # surface normal of monolayers should be oriented along z
+                structure.set_pbc([True,True,False])
             #structure = StructureData(ase=read(path))
             structure.label = name
             print("Storing {} in database".format(name))
