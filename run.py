@@ -117,7 +117,7 @@ def execute(args):
 
     bandskpoints = KpointsData()
     bandskpoints.set_cell(structure.cell, structure.pbc)
-    # bandskpoints.set_kpoints_path(kpoint_distance = 0.05)
+    bandskpoints.set_kpoints_path(kpoint_distance = 0.05)
     bandskpoints.set_kpoints_path([
         ('G', 'X', 21),
         ('X', 'R', 31),
@@ -145,18 +145,35 @@ def execute(args):
     input_plugin = code.get_input_plugin_name()
     if 'siesta' in input_plugin:
         from siesta_input import workchain, kwargs
-    elif 'fleur' in input_plugin:
-        from fleur import workchain, kwargs
+        
+        kwargs.update({'structure' : structure,
+                       'code' : code, 
+                       'kpoints' : kpoints, 
+                       'options' : options, 
+                       'bandskpoints' : bandskpoints})
 
+    elif 'fleur.fleur' in input_plugin:
+        from fleur_input import workchain, prepare_scf_input
+        
+        kwargs = prepare_scf_input(kmesh=args.kpoints, max_wallclock=args.max_wallclock_seconds)
+        kwargs.update({'fleur' : code, 
+                       'inpgen' : Code.get_from_string('fleur-0.27-inpgen@localhost'),
+                       'structure' : structure})
+    else:
+        print('The code you want to run is currently not supported by this script, sorry')
+        return
+
+    # newer aiida_core version needed for new verdi work list command
+    # but at least that can be seen on the node level
+    label = "{} on {}".format(workchain().__class__.__name__, structure.get_formula())
+    description = "{} run with code {} on {}".format(
+                        workchain().__class__.__name__, code.label, structure.get_formula())
+    
     result = run(
         # general inputs
         workchain,
-        code=code,
-        structure=structure,
-        kpoints=kpoints,
-        bandskpoints=bandskpoints,
-        options=options,
-        # plugin-specific inputs
+        _label=label,
+        _description=description,
         **kwargs
     )
 
