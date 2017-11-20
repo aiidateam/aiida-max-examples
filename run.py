@@ -4,6 +4,7 @@
 usage: ./run.py -c <aiida-code> -s <structure-label>
 """
 from config import group_name
+from aiida.common.exceptions import NotExistent
 
 
 def load_example_structures():
@@ -16,33 +17,38 @@ def load_example_structures():
     """
     from aiida.orm.group import Group
     
-    group, created = Group.get_or_create(name=group_name)
-    
-    if created:
+    try:
+        group = Group.get(name=group_name)
+
+    except NotExistent:
         import glob
         import os
-        from aiida.orm.data.cif import CifData
+        from ase.io import read
+        from aiida.orm.data.structure import StructureData
 
         paths = glob.glob(group_name + '/*.cif')
 
+        structure_nodes = []
         for path in paths:
             fname = os.path.basename(path)
             name = os.path.splitext(fname)[0]
 
-            cif = CifData()
-            structure = cif.read_cif(path)
+            structure = StructureData(ase=read(path))
             if "ML" in name:
                 # surface normal of monolayers should be oriented along z
                 structure.set_pbc([True,True,False])
-            #structure = StructureData(ase=read(path))
+            else:
+                structure.set_pbc([True,True,True])
             structure.label = name
             print("Storing {} in database".format(name))
             structure.store()
-            group.add_nodes([structure])
+            structure_nodes.append(structure)
     
+        group = Group(name=group_name)
+        group.store()
         group.description = "\
         Set of atomic structures used by examples for AiiDA plugins of different codes"
-        group.store()
+        group.add_nodes(structure_nodes)
     
     return group
 
@@ -106,7 +112,7 @@ def execute(args):
         structure = nodes[ labels.index(args.structure) ]
     except ValueError:
         raise ValueError("Structure {} not found. Available structures: {}"\
-            .format(args.structure, labels.join(", ")))
+            .format(args.structure, " , ".join(labels)))
     if not isinstance(structure, StructureData):
         raise ValueError("Node {} is not of type StructureData".format(structure.pk))
     print("Running example '{}'".format(args.structure))
