@@ -30,7 +30,7 @@ def load_example_structures():
             name = os.path.splitext(fname)[0]
 
             cif = CifData()
-            structure = c.read_cif(path)
+            structure = cif.read_cif(path)
             if "ML" in name:
                 # surface normal of monolayers should be oriented along z
                 structure.set_pbc([True,True,False])
