@@ -161,7 +161,7 @@ def execute(args):
     elif 'fleur.fleur' in input_plugin:
         from fleur_input import workchain, prepare_scf_input
         
-        kwargs = prepare_scf_input(kmesh=args.kpoints, max_wallclock=args.max_wallclock_seconds)
+        kwargs = prepare_scf_input(kmesh=args.kpoints, options=options)
         kwargs.update({'fleur' : code, 
                        'inpgen' : Code.get_from_string('fleur-0.27-inpgen@localhost'),
                        'structure' : structure})

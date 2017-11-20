@@ -5,13 +5,16 @@ from aiida_fleur.workflows.scf import fleur_scf_wc as workchain
 
 ParameterData = DataFactory('parameter')
 
-def prepare_scf_input(kmesh=[4,4,4], max_wallclock=600):
+def prepare_scf_input(kmesh=[4,4,4], options=ParameterData(dict={})):
     """
     prepares the input for fleur scf
-    """                 
-    
+    """             
+    options_dict = options.get_dict()
+    max_wallclock = options_dict.get('max_wallclock_seconds', 600)
+    resources = options_dict.get('resources', {"num_machines" : 1})
+
     wc_parameters = ParameterData(dict={'fleur_runmax': 4, 
-                                        'resources' : {"num_machines": 1},#{"tot_num_mpiprocs": 24},
+                                        'resources' : resources,#{"num_machines": 1},#{"tot_num_mpiprocs": 24},
                                         'walltime_sec':  max_wallclock,
                                         'queue_name' : 'batch',
                                         'serial' : True,
